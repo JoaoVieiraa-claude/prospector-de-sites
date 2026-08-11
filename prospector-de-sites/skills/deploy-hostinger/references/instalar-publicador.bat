@@ -2,7 +2,7 @@
 title Prospector de Sites - instalar publicador automatico
 echo.
 echo  Este instalador cria uma tarefa do Windows que verifica a cada 1 minuto
-echo  se ha sites na fila e publica sozinho na HostGator. Sem janelas, sem cliques.
+echo  se ha sites na fila e publica sozinho na Hostinger. Sem janelas, sem cliques.
 echo.
 schtasks /Create /F /TN "ProspectorPublicador" /SC MINUTE /MO 1 /TR "wscript.exe \"%~dp0publicador-oculto.vbs\""
 if %errorlevel%==0 (
