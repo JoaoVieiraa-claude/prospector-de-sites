@@ -50,14 +50,14 @@
     <li><b>Extensão Claude in Chrome</b> conectada — é ela que navega no Google Maps.</li>
     <li><b>Conector do Gmail</b> ativo (Configurações → Conectores) — rascunhos de proposta e leitura de respostas.</li>
     <li><b>Conector do Google Drive</b> — planilha de leads no Google Sheets.</li>
-    <li><b>Hospedagem Hostinger</b> (plano M ou superior, que aceita vários sites) com os dados de FTP em mãos: usuário, domínio e servidor (no hPanel → Arquivos → Contas de FTP).</li>
+    <li><b>Conta no GitHub</b> e um <b>repositório de clientes</b> conectado ao <b>Cloudflare Pages</b> (o /setup ajuda a montar). É onde as páginas são publicadas.</li>
     <li><b>Uma pasta conectada no Cowork</b> (ex.: "Clientes") — tudo fica salvo nela.</li>
   </ul>
 
   <h2 id="setup">2. Configuração (uma vez só)</h2>
   <ol>
     <li>Digite <span class="cmd">/setup</span> no Cowork e responda: sua assinatura (nome, apresentação, WhatsApp), nichos preferidos, cidade e quantos leads por busca.</li>
-    <li><b>Dados da Hostinger: tudo no dashboard, nada no chat.</b> Abra o dashboard (<code>iniciar-dashboard.bat</code>) → aba <b>Configurações</b> → seção <b>Conexão Hostinger</b> → preencha usuário, domínio, servidor (os três estão no hPanel → Arquivos → Contas de FTP) e a senha → <b>Salvar conexão</b>. Tudo vai direto pro arquivo no seu computador — o chat nunca vê.</li>
+    <li><b>Conexão do Cloudflare: tudo no dashboard.</b> Abra o dashboard (<code>iniciar-dashboard.bat</code>) → aba <b>Configurações</b> → seção <b>Conexão Cloudflare</b> → preencha a pasta local do repositório, a URL do repositório no GitHub e a URL pública (pages.dev) → <b>Salvar conexão</b>. Sem senhas — vai direto pro arquivo no seu computador.</li>
     <li>O Claude faz um teste de publicação e te entrega este manual + o dashboard prontos na pasta.</li>
   </ol>
   <div class="box dica">💡 Preencha também seus dados de contratante na aba <b>Configurações</b> do dashboard — todo contrato já sai com eles.</div>
@@ -68,7 +68,7 @@
     <tr><td><span class="cmd">/prospectar</span></td><td>Varre o Google Maps: negócios nota ≥ 4.7 com site fraco E e-mail público. Gera planilha no Google Sheets + alimenta o dashboard.</td></tr>
     <tr><td><span class="cmd">/redesenhar</span></td><td>Recria as páginas dos melhores leads (5+ por lote) mantendo conteúdo, fotos e logo REAIS. Entrega: página + editor visual + comparador antes/depois.</td></tr>
     <tr><td><span class="cmd">/editor</span></td><td>Quer mexer em texto ou foto? Abre a versão editável no navegador — clica, edita, exporta.</td></tr>
-    <tr><td><span class="cmd">/publicar</span></td><td>Sobe página + capa de apresentação na Hostinger e valida o HTTPS (cadeado).</td></tr>
+    <tr><td><span class="cmd">/publicar</span></td><td>Sobe página + capa de apresentação no Cloudflare Pages (git push) e confirma o HTTPS.</td></tr>
     <tr><td><span class="cmd">/proposta</span></td><td>Escreve o e-mail (elogio real + defeito objetivo + link da capa), passa na checklist anti-spam e deixa o rascunho no Gmail.</td></tr>
     <tr><td><span class="cmd">/respostas</span></td><td>Lê o Gmail e move sozinho no painel quem respondeu. Dica: peça pro Claude agendar todo dia às 9h.</td></tr>
     <tr><td><span class="cmd">/followup</span></td><td>3+ dias sem resposta? Gera o lembrete gentil (1 por cliente, nunca repete).</td></tr>
@@ -79,12 +79,12 @@
   <h2 id="publicacao">4. Publicação automática — configure UMA vez e nunca mais faça login</h2>
   <p>O segredo é a senha no arquivo (passo 2 acima). Com ela preenchida:</p>
   <ol>
-    <li>Preencha a conexão Hostinger no dashboard (aba Configurações), incluindo a senha.</li>
-    <li><b>Uma única vez</b>: dê um duplo clique no <code>instalar-publicador.bat</code> da sua pasta. Ele registra no Windows um publicador que verifica a fila a cada minuto, invisível. (Se reclamar de permissão: botão direito → Executar como administrador.)</li>
-    <li>Pronto: de agora em diante o <span class="cmd">/publicar</span> prepara a fila e em até 1 minuto os sites sobem SOZINHOS — sem janela, sem clique, sem hPanel. O Claude confere as URLs e o cadeado HTTPS na sequência.</li>
+    <li>Preencha a conexão Cloudflare no dashboard (aba Configurações): pasta do repositório, URL do repo e URL pages.dev.</li>
+    <li><b>Uma única vez</b>: conecte o repositório de clientes no Cloudflare Pages (painel → Workers & Pages → Pages → Connect to Git). A partir daí, todo push publica sozinho.</li>
+    <li>Pronto: de agora em diante o <span class="cmd">/publicar</span> faz <code>git push</code> e em até 1 minuto os sites sobem SOZINHOS pelo Cloudflare. O Claude confere as URLs e o cadeado HTTPS na sequência.</li>
   </ol>
-  <p style="font-size:13px;color:var(--muted)">Plano B manual: duplo clique no <code>publicar-agora.bat</code> publica na hora mostrando o progresso. O histórico fica em <code>publicador-log.txt</code>.</p>
-  <div class="box dica">💡 A Hostinger instala SSL grátis automaticamente. Se aparecer erro de certificado no primeiro deploy: hPanel → Segurança → SSL → Instalar (uma vez só, leva minutos).</div>
+  <p style="font-size:13px;color:var(--muted)">A publicação é o próprio <code>git push</code> feito pelo /publicar — o histórico fica no GitHub (commits) e no painel do Cloudflare Pages (deployments).</p>
+  <div class="box dica">💡 O Cloudflare Pages já serve tudo em HTTPS automaticamente — não há passo de SSL. Se a URL der 404 logo após publicar, espere ~1 minuto (o deploy pode não ter terminado).</div>
 
   <h2 id="dashboard">5. O dashboard (seu CRM local)</h2>
   <p>Dê <b>dois cliques em <code>iniciar-dashboard.bat</code></b> na sua pasta (precisa de Python instalado) — abre em <code>http://localhost:8765</code> com tudo salvo no banco <code>prospector.db</code>. Sem Python, abra <code>dashboard.html</code> direto (modo leitura com edições locais).</p>
@@ -97,19 +97,19 @@
     <li><b>Follow-ups</b> — quem está parado há dias, com alerta laranja.</li>
     <li><b>Contratos</b> — ver a folha, imprimir, baixar o Word travado, marcar assinado.</li>
     <li><b>Financeiro</b> — recebido, a receber, MRR das manutenções e projeção 12 meses.</li>
-    <li><b>Configurações</b> — seus dados de contratante + conexão Hostinger com a senha (preencha uma vez; a senha nunca passa pelo chat).</li>
+    <li><b>Configurações</b> — seus dados de contratante + conexão Cloudflare (repositório e URL pages.dev; sem senhas).</li>
   </ul>
 
   <h2 id="mac">6. E no Mac?</h2>
-  <p>Tudo funciona igual — só mudam os arquivos de clique duplo: <code>iniciar-dashboard.command</code> (painel), <code>publicar-agora.command</code> (publicação manual) e <code>instalar-publicador.command</code> (publicador automático via launchd, uma vez só). O /setup entrega os arquivos certos pro seu sistema.</p>
+  <p>Tudo funciona igual — só muda o arquivo de clique duplo do painel: <code>iniciar-dashboard.command</code>. A publicação é por <code>git push</code>, sem scripts locais. O /setup entrega os arquivos certos pro seu sistema.</p>
   <div class="box dica">💡 Na primeira abertura o macOS pode bloquear por segurança: clique com o botão direito no arquivo → <b>Abrir</b> → Abrir. Só na primeira vez. Python 3: se não tiver, <code>brew install python3</code> ou python.org.</div>
   <h2 id="faq">7. Problemas comuns</h2>
   <h3>O comparador não apareceu depois do /redesenhar</h3>
   <p>Peça: "gere o comparar.html e atualize o dashboard". A partir da v0.11.1 a entrega é travada e ele sempre vem — e também fica na aba <b>Comparador</b> do dashboard.</p>
-  <h3>Pede login no hPanel toda hora</h3>
-  <p>Falta a senha da Hostinger. Abra o dashboard → Configurações → Conexão Hostinger, cole a senha e salve — o fluxo vira automático. Cada pasta conectada tem o próprio config.</p>
+  <h3>O push falha por autenticação</h3>
+  <p>O git precisa estar autenticado no GitHub. Rode <code>gh auth login</code> uma vez no terminal — depois o <code>git push</code> do /publicar funciona sozinho.</p>
   <h3>Meu link parece estranho / domínio cheio de números</h3>
-  <p>Você está usando o subdomínio temporário da Hostinger. Ative seu domínio próprio (grátis no plano — hPanel → Domínios) e atualize o campo domínio nas Configurações do dashboard. Link bonito = cliente confiante; o plugin segura as propostas enquanto o domínio for o temporário.</p>
+  <p>A URL padrão é <code>projeto.pages.dev/[cliente]</code>, que já é apresentável. Se quiser um link ainda melhor, adicione um domínio próprio no projeto do Cloudflare Pages (painel → Custom domains) e atualize a URL nas Configurações do dashboard.</p>
   <h3>Meu e-mail pode cair no spam?</h3>
   <p>A checklist anti-spam do /proposta existe pra isso: 1 link só, sem palavras de vendedor, sem anexo, assunto-pergunta personalizado, envio 1 a 1 da sua conta. Mantenha poucos envios por dia — padrão humano.</p>
   <h3>O lado "Antes" do comparador fica em branco</h3>

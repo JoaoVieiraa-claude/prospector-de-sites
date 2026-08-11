@@ -1,5 +1,5 @@
 ---
-description: Configura o plugin — assinatura, preferências e conexão com a Hostinger (roda uma vez)
+description: Configura o plugin — assinatura, preferências e conexão com o Cloudflare Pages (roda uma vez)
 ---
 
 Configure o ambiente do Prospector de Sites. Siga esta ordem:
@@ -22,17 +22,18 @@ Colete:
 - **Leads qualificados por busca**: padrão 10.
 - **Modo de envio da proposta**: padrão "criar rascunho no Gmail para revisão" (recomendado). Alternativa: enviar direto.
 
-## 4. Conexão com a Hostinger
+## 4. Conexão com o Cloudflare Pages (via GitHub)
 
-Pergunte se o usuário já contratou a hospedagem Hostinger.
+A publicação usa um repositório GitHub de clientes conectado ao Cloudflare Pages: cada cliente vira uma pasta `/[slug]/` na raiz do repo e **cada `git push` publica sozinho** (HTTPS grátis). Não há FTP nem senha.
 
-- **Se ainda não contratou**: explique brevemente que ele precisa de um plano que aceite múltiplos sites (plano M ou superior), que ao contratar ganha domínio grátis, e que depois de ativar deve voltar e rodar `/setup` de novo. Salve o config parcial e encerre.
-- **Se já contratou**: NÃO colete nenhum dado da Hostinger pelo chat (nem usuário, nem servidor — e JAMAIS a senha). Tudo vai num lugar só, a aba Configurações do dashboard:
-  1. Instrua: abra o dashboard (`iniciar-dashboard.bat` na pasta conectada) → aba **Configurações** → seção **Conexão Hostinger**.
-  2. Lá ele preenche os 4 campos + senha: usuário, domínio, servidor (os três aparecem no hPanel → Arquivos → Contas de FTP) e a senha de FTP. Clica em "Salvar conexão" → tudo vai do navegador direto pro `prospector-config.json` no computador dele, sem passar pelo chat.
-  3. Peça para ele avisar quando salvar ("salvei") — aí você LÊ o config (verificando que os campos estão preenchidos, sem nunca exibir a senha) e roda o teste de conexão.
+Pergunte se o usuário já tem o repositório de clientes e o projeto no Cloudflare Pages.
 
-  Nunca exiba, imprima ou registre a senha em nenhuma saída. Se ele preferir, editar o `prospector-config.json` na mão também vale.
+- **Se ainda não tem**: ajude a montar:
+  1. Crie (ou reutilize) um repositório GitHub privado para os clientes (ex.: `clientes-prospector`) e clone-o localmente numa pasta `repoDir`. Se o `gh` estiver disponível, dá para criar e já subir com `gh repo create <nome> --private --source=. --push`.
+  2. Peça ao usuário para conectar esse repositório no Cloudflare Pages: painel → **Workers & Pages** → **Pages** → **Connect to Git** → branch `main`, **framework preset** None, **build command** vazio, **build output** `/` → Save and Deploy. O Cloudflare gera uma URL `pages.dev`.
+- Preencha o bloco `cloudflare` do config (abaixo) com `repoDir`, `repoUrl`, `pagesUrl` e `branch`. O `pagesUrl` pode ser colado depois de conectar o Cloudflare — enquanto isso, os pushes já funcionam. A autenticação do git é cuidada pelo `gh` (sem senha no config).
+
+O bloco pode ser preenchido na aba **Configurações → Conexão Cloudflare** do dashboard, ou direto no `prospector-config.json`.
 
 ## 5. Salvar e testar
 
@@ -43,19 +44,19 @@ Salve tudo em `prospector-config.json` na pasta conectada, neste formato:
   "assinatura": { "nome": "", "apresentacao": "", "whatsapp": "" },
   "prospeccao": { "nichos": ["nutricionistas", "psicologos", "advogados", "psiquiatras"], "cidade": "", "leadsPorBusca": 10 },
   "envio": { "modo": "rascunho" },
-  "hostinger": { "usuario": "", "dominio": "", "servidor": "", "senha": "", "pastaBase": "clientes" }
+  "cloudflare": { "repoDir": "", "repoUrl": "", "pagesUrl": "", "branch": "main" }
 }
 ```
 
-Se os dados da Hostinger foram informados, teste a conexão seguindo a skill `deploy-hostinger`: publique uma página `teste.html` simples e informe a URL pública ao usuário. Se o teste falhar, diagnostique (credenciais, servidor, método de upload) antes de concluir.
+Se `repoDir` e `repoUrl` já estão configurados, teste a conexão seguindo a skill `deploy-cloudflare`: crie uma página `_teste/index.html` simples, faça commit e push, e (se `pagesUrl` já estiver preenchida) confirme que `https://<projeto>.pages.dev/_teste/` abre; depois remova a pasta `_teste` e push de novo. Se o push falhar por autenticação, oriente a rodar `gh auth login` uma vez.
 
 ## 6. Dashboard inicial
 
 Siga a seção "Setup" da skill `dashboard-leads`: copie `dashboard-server.py` e `iniciar-dashboard.bat` para a raiz da pasta conectada, crie o banco `prospector.db` (schema da skill) e gere o `dashboard.html` do template. Explique ao usuário: duplo clique em `iniciar-dashboard.bat` abre o painel completo em http://localhost:8765 com edição/exclusão salvando no banco (requer Python no Windows; sem ele, o dashboard.html abre no modo leitura).
 
-## 7B. Entregar o manual e os scripts
+## 7B. Entregar o manual e o dashboard
 
-Copie da pasta do plugin para a pasta conectada (sobrescrevendo versões antigas): `manual.html` (manual do usuário) e os arquivos do publicador conforme o sistema do usuário (skill `deploy-hostinger`, references) — Windows: `publicar-agora.ps1/.bat`, `publicador-oculto.vbs`, `instalar-publicador.bat` · Mac: `publicar-agora.command`, `instalar-publicador.command` — mais o iniciador do dashboard certo (`iniciar-dashboard.bat` ou `.command`). Peça UM duplo clique no instalador do publicador (registra o publicador automático no Windows — única vez na vida; o teste de conexão do item 5 pode usar esse fluxo). Apresente o `manual.html` ao usuário com a frase: "Esse é o seu manual — guarda ele que responde 90% das dúvidas."
+Copie da pasta do plugin para a pasta conectada (sobrescrevendo versões antigas): `manual.html` (manual do usuário) e o iniciador do dashboard certo para o sistema (`iniciar-dashboard.bat` no Windows ou `iniciar-dashboard.command` no Mac). No Cloudflare **não há publicador local** — quem publica é o `git push` durante o `/publicar`. Apresente o `manual.html` ao usuário com a frase: "Esse é o seu manual — guarda ele que responde 90% das dúvidas."
 
 ## 7. Encerrar
 

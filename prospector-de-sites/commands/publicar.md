@@ -1,18 +1,18 @@
 ---
-description: Publica as páginas redesenhadas na Hostinger e retorna as URLs públicas
+description: Publica as páginas redesenhadas no Cloudflare Pages (via GitHub) e retorna as URLs públicas
 argument-hint: "[nome do cliente ou todos]"
 ---
 
-Publique páginas na Hostinger seguindo a skill `deploy-hostinger`.
+Publique páginas no Cloudflare Pages seguindo a skill `deploy-cloudflare`.
 
 ## Passos
 
-1. Leia `prospector-config.json`. Se os dados da Hostinger não estiverem preenchidos, colete-os agora (usuário, domínio, servidor — e oriente o usuário a preencher a senha diretamente no config, nunca no chat) — não prossiga sem eles.
+1. Leia `prospector-config.json` (bloco `cloudflare`: `repoDir`, `repoUrl`, `pagesUrl`, `branch`). Se `repoDir` não existir ou não for um repositório git, oriente a rodar `/setup` primeiro — não prossiga sem ele.
 2. Determine o que publicar: `$ARGUMENTS` (um cliente ou "todos"), ou liste as páginas com status `redesenhado` em `leads.md` e pergunte.
 3. **Gere a página-capa de cada cliente**: preencha `references/capa-proposta-template.html` (skill `proposta-email`) com os dados do lead + assinatura do config e salve como `sites/[slug]/proposta.html`. É ela que vai no e-mail de proposta.
-4. **Publique seguindo a skill `deploy-hostinger`**, nesta ordem: tente o FTP silencioso do sandbox; se a rede bloquear, use o publicador automático local — garanta os 4 arquivos do publicador na pasta, monte a `fila-publicacao.txt` com página (`index.html`) e capa (`proposta.html`) de cada cliente e aguarde ~90s: a tarefa agendada publica sozinha (confira a fila renomeada e o `publicador-log.txt`). Se a tarefa ainda não foi instalada, peça o duplo clique único no `instalar-publicador.bat`. Sem hPanel, sem login, senha só no config.
-5. **Verificação HTTPS (bloqueante)**: abra cada URL com `https://` e confirme que carrega com cadeado válido. Se o HTTPS falhar, siga a seção "HTTPS obrigatório" da skill `deploy-hostinger` (SSL no hPanel) antes de considerar publicado — link `http://` NUNCA vai para cliente.
-6. Atualize `leads.md` e o banco do dashboard: status `publicado` + URL pública nova.
+4. **Publique seguindo a skill `deploy-cloudflare`**: para cada cliente, copie `sites/[slug]/[slug].html` → `[repoDir]/[slug]/index.html` e (se existir) `sites/[slug]/proposta.html` → `[repoDir]/[slug]/proposta.html`; depois `git add -A`, `git commit` e `git push` no `repoDir`. O Cloudflare Pages publica sozinho em ~1 minuto. Um único push pode levar vários clientes de uma vez.
+5. **Verificação (bloqueante)**: aguarde ~60–90s e abra `https://<projeto>.pages.dev/[slug]/` (monte a partir de `pagesUrl`) e a capa `.../[slug]/proposta.html`. O Cloudflare já entrega HTTPS com cadeado válido automaticamente. Se der 404 logo após o push, o deploy ainda não terminou — espere mais ~60s e tente de novo. Só considere publicado quando a URL abrir.
+6. Atualize `leads.md` e o banco do dashboard: status `publicado` + `urlNova = https://<projeto>.pages.dev/[slug]/`.
 
 ## Saída
 
