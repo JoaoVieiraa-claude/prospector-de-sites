@@ -1,50 +1,48 @@
 ---
 name: deploy-cloudflare
-description: Esta skill deve ser usada ao publicar páginas de clientes no Cloudflare Pages via GitHub — copiar a página para o repositório de clientes, commit e push (o Cloudflare publica sozinho), montar a URL pública e verificar o HTTPS. Acione quando o usuário disser "publicar", "subir o site", "colocar no ar", "deploy", "cloudflare" ou rodar /publicar ou o teste de conexão do /setup.
+description: Esta skill deve ser usada ao publicar páginas no Cloudflare Pages via GitHub — commit + push num repo de sites que o Cloudflare observa, build automático, URL pública .pages.dev e HTTPS. Acione quando o usuário disser "publicar", "subir o site", "colocar no ar", "deploy", "cloudflare", "pages" ou rodar /publicar ou o teste de conexão do /setup.
 ---
 
 # Deploy no Cloudflare Pages (via GitHub)
 
-Publicar a página redesenhada de cada cliente em `[repoDir]/[slug]/index.html`, dar `git push` e deixar o Cloudflare Pages publicar sozinho. URL pública: `https://<projeto>.pages.dev/[slug]/`.
+Publicar páginas em `[repoLocal]/[slug]/` (index.html + proposta.html), dar `git push` no repo de sites e garantir a URL pública `https://[subdominio]/[slug]/` no ar com HTTPS.
 
-## Modelo (importante)
+## Como funciona
 
-Não há FTP, senha nem publicador local. Um único repositório GitHub (`clientes-prospector`) guarda **todos** os clientes, um por pasta na raiz (`/[slug]/index.html`). Esse repositório está conectado a **um** projeto do Cloudflare Pages: **todo `git push` na branch de produção dispara o deploy automático** (HTTPS grátis, ~1 minuto).
+Um repositório do GitHub (só pros clientes) está conectado a um projeto do **Cloudflare Pages**. A cada `git push` na branch de produção, o Cloudflare faz o build (site estático, sem build command — a raiz do repo já é o site) e publica em segundos. **Não há FTP, hPanel, senha nem script na máquina do usuário — o deploy roda direto do agente por HTTPS.**
 
 ## Config
 
 Tudo vem de `prospector-config.json` (bloco `cloudflare`):
+- `repoRemoto`: URL do repo de sites (ex.: `https://github.com/usuario/prospector-sites.git`).
+- `repoLocal`: pasta do clone local dentro da pasta conectada (padrão `sites-publicados`).
+- `projetoPages`: nome do projeto no Cloudflare Pages.
+- `subdominio`: host público (ex.: `prospector-sites.pages.dev`).
+- `branch`: branch de produção (padrão `main`).
 
-- `repoDir` — caminho local do clone do repositório de clientes (ex.: `C:\Users\...\clientes-prospector`).
-- `repoUrl` — URL do repositório no GitHub.
-- `pagesUrl` — URL pública do projeto Cloudflare Pages (ex.: `https://clientes-prospector.pages.dev`), preenchida depois de conectar o repositório no painel do Cloudflare.
-- `branch` — branch de produção (padrão `main`).
+**Nenhum segredo mora aqui.** O `git push` usa as credenciais já configuradas na máquina (credential manager / PAT). Se faltar autenticação, oriente o usuário a autenticar o git uma vez (`git push` pedirá login pelo helper do sistema) — nunca peça token nem senha pelo chat.
 
-Se `repoDir` não existir ou não for um repositório git, oriente o usuário a rodar `/setup` (que clona o repo e configura). Se `pagesUrl` estiver vazio, a publicação no git funciona, mas ainda não dá para montar/verificar a URL pública — peça ao usuário para conectar o repo no Cloudflare (dashboard → Workers & Pages → Pages → Connect to Git) e colar a URL `pages.dev` nas Configurações do dashboard.
+## Método — commit + push (único, roda no agente)
 
-## Publicação (para cada cliente)
-
-1. Garanta que `repoDir` está atualizado: `git -C "[repoDir]" pull --ff-only` (silencioso; ignore se não houver upstream novo).
-2. Copie a página final para o repositório: `sites/[slug]/[slug].html` → `[repoDir]/[slug]/index.html`. Se existir a capa da proposta, copie também `sites/[slug]/proposta.html` → `[repoDir]/[slug]/proposta.html`.
-3. Commit + push (é isto que publica):
-   ```bash
-   git -C "[repoDir]" add -A
-   git -C "[repoDir]" commit -m "Publica/atualiza [slug]"
-   git -C "[repoDir]" push
+1. **Garanta o clone local**: se `[repoLocal]` não existir na pasta conectada, clone: `git clone [repoRemoto] [repoLocal]`. Se já existir, atualize antes: `git -C [repoLocal] pull --ff-only`.
+2. **Copie as páginas de cada cliente** para o clone, uma pasta por slug:
+   - página redesenhada → `[repoLocal]/[slug]/index.html`
+   - capa da proposta → `[repoLocal]/[slug]/proposta.html`
+3. **Publique**:
    ```
-   O credential helper do `gh` cuida da autenticação. Se o push falhar por autenticação, peça ao usuário para rodar `gh auth login` uma vez.
-4. **Aguarde ~60–90s** (o build do Cloudflare) antes de verificar.
+   git -C [repoLocal] add -A
+   git -C [repoLocal] commit -m "publica [slug1], [slug2]..."
+   git -C [repoLocal] push origin [branch]
+   ```
+   Se `push` falhar por autenticação, pare e oriente o usuário a rodar o push uma vez na máquina dele para o git salvar as credenciais; jamais exponha token no chat. Se falhar por `non-fast-forward`, rode `git -C [repoLocal] pull --rebase` e repita o push.
+4. **Aguarde o build** (~20–60s): o Cloudflare Pages detecta o push e publica sozinho. Não precisa acionar nada.
 
-## Verificação (obrigatória)
+## Verificação (obrigatória, após o push)
 
-1. Abra `https://<projeto>.pages.dev/[slug]/` (monte a partir de `pagesUrl` + `/[slug]/`) e a capa `.../[slug]/proposta.html`, se houver — confirme que carregam com o conteúdo certo.
-2. **HTTPS**: o Cloudflare já serve tudo em HTTPS com cadeado válido, automaticamente — não há passo manual de SSL. Se a URL ainda der 404 logo após o push, o deploy pode não ter terminado: espere mais ~60s e tente de novo (o primeiro deploy do projeto costuma demorar um pouco mais).
-3. Atualize `leads.md` + dashboard (skill `dashboard-leads`): `status='publicado'` e `urlNova = https://<projeto>.pages.dev/[slug]/`.
+1. Abra `https://[subdominio]/[slug]/` e a capa `.../proposta.html` — confirme que carregam com o conteúdo certo. Se der 404, aguarde mais ~30s (build ainda rodando) e tente de novo.
+2. **HTTPS**: o Cloudflare já serve tudo com HTTPS válido por padrão (cadeado). Link `http://` nunca vai para cliente — sempre `https://`.
+3. Atualize `leads.md` + dashboard com status `publicado` e a URL pública.
 
 ## Teste de conexão do /setup
 
-Se `repoDir` e `repoUrl` estão configurados: crie uma página `_teste/index.html` simples ("Funcionou!"), faça commit e push, aguarde ~90s e confirme que `https://<projeto>.pages.dev/_teste/` abre (se `pagesUrl` já estiver preenchida). Depois remova a pasta `_teste`, commit e push de novo. Se `pagesUrl` ainda não existir, faça só o push de teste e explique que a URL pública aparece após conectar o repo no Cloudflare.
-
-## Domínio próprio (opcional)
-
-Para um link mais bonito na proposta, o usuário pode adicionar um domínio custom no projeto Cloudflare Pages (painel → projeto → Custom domains). Depois, atualize `pagesUrl` no dashboard para o domínio próprio — as URLs dos clientes passam a usá-lo.
+Crie `[repoLocal]/teste/index.html` simples ("Funcionou!"), faça commit + push e confirme `https://[subdominio]/teste/` no ar. Se o clone/push falhar, diagnostique (repo criado? Pages conectado ao repo? git autenticado?) antes de concluir o setup.

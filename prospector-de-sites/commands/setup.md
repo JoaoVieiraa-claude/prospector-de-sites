@@ -22,18 +22,16 @@ Colete:
 - **Leads qualificados por busca**: padrão 10.
 - **Modo de envio da proposta**: padrão "criar rascunho no Gmail para revisão" (recomendado). Alternativa: enviar direto.
 
-## 4. Conexão com o Cloudflare Pages (via GitHub)
+## 4. Deploy no Cloudflare Pages (via GitHub)
 
-A publicação usa um repositório GitHub de clientes conectado ao Cloudflare Pages: cada cliente vira uma pasta `/[slug]/` na raiz do repo e **cada `git push` publica sozinho** (HTTPS grátis). Não há FTP nem senha.
+A publicação é por **git push** num repositório de sites que o **Cloudflare Pages** observa — o build é automático e roda direto do agente, sem FTP, sem senha e sem script na máquina. Pergunte se o usuário já tem conta no GitHub e no Cloudflare (as duas gratuitas).
 
-Pergunte se o usuário já tem o repositório de clientes e o projeto no Cloudflare Pages.
-
-- **Se ainda não tem**: ajude a montar:
-  1. Crie (ou reutilize) um repositório GitHub privado para os clientes (ex.: `clientes-prospector`) e clone-o localmente numa pasta `repoDir`. Se o `gh` estiver disponível, dá para criar e já subir com `gh repo create <nome> --private --source=. --push`.
-  2. Peça ao usuário para conectar esse repositório no Cloudflare Pages: painel → **Workers & Pages** → **Pages** → **Connect to Git** → branch `main`, **framework preset** None, **build command** vazio, **build output** `/` → Save and Deploy. O Cloudflare gera uma URL `pages.dev`.
-- Preencha o bloco `cloudflare` do config (abaixo) com `repoDir`, `repoUrl`, `pagesUrl` e `branch`. O `pagesUrl` pode ser colado depois de conectar o Cloudflare — enquanto isso, os pushes já funcionam. A autenticação do git é cuidada pelo `gh` (sem senha no config).
-
-O bloco pode ser preenchido na aba **Configurações → Conexão Cloudflare** do dashboard, ou direto no `prospector-config.json`.
+- **Se ainda não tem**: oriente a criar as contas em github.com e dash.cloudflare.com (grátis) e voltar a rodar `/setup`. Salve o config parcial e encerre.
+- **Se já tem**, guie o setup único (o usuário faz nas contas dele; você nunca pede token nem senha no chat):
+  1. **Criar o repo de sites**: no GitHub, um repositório novo só pros clientes (ex.: `prospector-sites`), vazio. Anote a URL `.git`.
+  2. **Conectar o Cloudflare Pages**: dash.cloudflare.com → **Workers & Pages** → **Create** → **Pages** → **Connect to Git** → escolher o repo. Sem build command, output directory `/` (site estático). Isso gera o subdomínio `https://[projeto].pages.dev`.
+  3. **Autenticar o git na máquina** (uma vez): peça pro usuário fazer um `git push` qualquer nesse repo (ou logar pelo credential manager) pra que o push do plugin funcione sem pedir senha. Nunca peça o token pelo chat.
+  4. Ele preenche os campos na aba **Configurações → Conexão Cloudflare** do dashboard (repo remoto, projeto Pages, subdomínio) → salva direto no `prospector-config.json`, sem passar pelo chat. Ou edita o arquivo na mão.
 
 ## 5. Salvar e testar
 
@@ -44,11 +42,11 @@ Salve tudo em `prospector-config.json` na pasta conectada, neste formato:
   "assinatura": { "nome": "", "apresentacao": "", "whatsapp": "" },
   "prospeccao": { "nichos": ["nutricionistas", "psicologos", "advogados", "psiquiatras"], "cidade": "", "leadsPorBusca": 10 },
   "envio": { "modo": "rascunho" },
-  "cloudflare": { "repoDir": "", "repoUrl": "", "pagesUrl": "", "branch": "main" }
+  "cloudflare": { "repoRemoto": "", "repoLocal": "sites-publicados", "projetoPages": "", "subdominio": "", "branch": "main" }
 }
 ```
 
-Se `repoDir` e `repoUrl` já estão configurados, teste a conexão seguindo a skill `deploy-cloudflare`: crie uma página `_teste/index.html` simples, faça commit e push, e (se `pagesUrl` já estiver preenchida) confirme que `https://<projeto>.pages.dev/_teste/` abre; depois remova a pasta `_teste` e push de novo. Se o push falhar por autenticação, oriente a rodar `gh auth login` uma vez.
+Se os dados do Cloudflare foram informados, teste a conexão seguindo a skill `deploy-cloudflare`: clone o repo, publique uma página `teste/index.html` simples e confirme `https://[subdominio]/teste/` no ar. Se o teste falhar, diagnostique (repo criado? Pages conectado ao repo? git autenticado?) antes de concluir.
 
 ## 6. Dashboard inicial
 
@@ -56,7 +54,7 @@ Siga a seção "Setup" da skill `dashboard-leads`: copie `dashboard-server.py` e
 
 ## 7B. Entregar o manual e o dashboard
 
-Copie da pasta do plugin para a pasta conectada (sobrescrevendo versões antigas): `manual.html` (manual do usuário) e o iniciador do dashboard certo para o sistema (`iniciar-dashboard.bat` no Windows ou `iniciar-dashboard.command` no Mac). No Cloudflare **não há publicador local** — quem publica é o `git push` durante o `/publicar`. Apresente o `manual.html` ao usuário com a frase: "Esse é o seu manual — guarda ele que responde 90% das dúvidas."
+Copie da pasta do plugin para a pasta conectada (sobrescrevendo versões antigas): `manual.html` (manual do usuário) e o iniciador do dashboard certo para o sistema do usuário (`iniciar-dashboard.bat` no Windows ou `iniciar-dashboard.command` no Mac). O deploy não precisa de nenhum script local — roda por git push direto do agente. Apresente o `manual.html` ao usuário com a frase: "Esse é o seu manual — guarda ele que responde 90% das dúvidas."
 
 ## 7. Encerrar
 

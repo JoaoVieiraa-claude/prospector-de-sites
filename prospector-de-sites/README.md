@@ -1,14 +1,14 @@
-# Prospector de Sites — v2.1.0
+# Prospector de Sites — v2.3.0
 
 Prospecção semi-automática de clientes com sites ruins: acha, redesenha, publica e oferta.
 
 ## O ciclo
 
-1. `/setup` — roda uma vez: assinatura, nichos padrão, repositório de clientes no GitHub + Cloudflare Pages (com teste de publicação).
+1. `/setup` — roda uma vez: assinatura, nichos padrão, conexão Cloudflare Pages + GitHub (com teste de publicação).
 2. `/prospectar [nicho] [cidade]` — busca no Google Maps negócios nota ≥ 4.7 com site fraco e gera `leads.md` com e-mail, motivo e ranking (padrão: 10 leads).
 3. `/redesenhar` — recria as páginas dos 5+ melhores leads com estética premium, mantendo o conteúdo, logo e paleta reais do cliente.
 4. `/editor [cliente]` — gera versão editável no navegador (textos e imagens) com exportação da página final.
-5. `/publicar [cliente|todos]` — sobe no Cloudflare Pages em `projeto.pages.dev/[slug]/`, gera a página-capa de apresentação (antes/depois personalizado, `proposta.html`) e só conclui com HTTPS validado.
+5. `/publicar [cliente|todos]` — sobe no Cloudflare Pages em `subdominio.pages.dev/[slug]/`, gera a página-capa de apresentação (antes/depois personalizado, `proposta.html`) e só conclui com HTTPS validado.
 6. `/proposta [cliente|todos]` — escreve o e-mail (rapport, sem preço), passa pela checklist anti-spam e cria o rascunho no Gmail com a página-capa como único link.
 7. `/respostas` — verifica no Gmail quem respondeu e atualiza o dashboard sozinho (dica: agende a verificação diária).
 8. `/followup [cliente]` — 3+ dias sem resposta? Gera o follow-up gentil (1 por lead, nunca repete) já checando quem respondeu antes.
@@ -16,7 +16,7 @@ Prospecção semi-automática de clientes com sites ruins: acha, redesenha, publ
 
 ## Manual e publicação automática
 
-O pacote inclui `manual.html` — o manual completo do usuário, copiado pra pasta no `/setup` e **atualizado a cada versão do plugin**. A publicação é automática: o `/publicar` copia a página para o repositório de clientes e faz `git push`; o Cloudflare Pages publica sozinho, com HTTPS — sem FTP, sem senha.
+O pacote inclui `manual.html` — o manual completo do usuário, copiado pra pasta no `/setup` e **atualizado a cada versão do plugin**. A publicação no Cloudflare Pages é automática: o `/publicar` faz `git push` no repo de sites (conectado ao Pages) e o build sai sozinho em segundos, direto do agente — sem FTP, sem senha, sem script local.
 
 ## Dashboard local
 
@@ -24,15 +24,15 @@ O plugin mantém um painel de controle na sua pasta: `prospector.db` (banco SQLi
 
 ## Requisitos
 
-- Extensão Claude in Chrome conectada (prospecção no Maps e fallback de deploy)
+- Extensão Claude in Chrome conectada (prospecção no Maps)
 - Conector do Gmail (rascunhos de proposta)
 - Pasta conectada no Cowork (armazena config, leads e sites)
-- Repositório GitHub de clientes conectado ao Cloudflare Pages
+- Conta GitHub + Cloudflare Pages (grátis) e git autenticado na máquina
 
 ## Onde ficam os dados
 
-Tudo na pasta conectada: `prospector-config.json` (preferências e conexão com o repositório de clientes/Cloudflare — sem senhas), `leads.md` (pipeline) e `sites/[slug]/` (páginas criadas).
+Tudo na pasta conectada: `prospector-config.json` (preferências e conexão Cloudflare — sem segredos, o git usa as credenciais da máquina), `leads.md` (pipeline), `sites/[slug]/` (páginas criadas) e `sites-publicados/` (clone do repo de deploy).
 
 ## Como atualizar
 
-No chat: `/plugin marketplace update arrecheneto-plugins` e reinicie o app (versão certa: 2.1.0). Da 2.1.0 em diante, atualiza sozinho.
+No chat: `/plugin marketplace update arrecheneto-plugins` e reinicie o app (versão certa: 2.3.0). Da 2.3.0 em diante, atualiza sozinho.

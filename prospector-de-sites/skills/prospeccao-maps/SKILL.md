@@ -1,58 +1,72 @@
 ---
 name: prospeccao-maps
-description: Esta skill deve ser usada ao prospectar clientes no Google Maps — buscar negócios bem avaliados com sites ruins, qualificar leads, avaliar qualidade de sites de terceiros e montar a planilha de leads. Acione quando o usuário disser "prospectar", "buscar clientes", "achar leads", "clientes com site ruim" ou rodar /prospectar.
+description: Esta skill deve ser usada ao prospectar clientes no Google Maps — buscar negócios bem avaliados nos dois modos (Redesign = com site ruim; Criar site = sem site), qualificar leads, avaliar sites e montar a planilha. Acione quando o usuário disser "prospectar", "buscar clientes", "achar leads", "clientes com site ruim", "clientes sem site" ou rodar /prospectar.
 ---
 
 # Prospecção no Google Maps
 
-Encontrar o cliente ouro: negócio que JÁ fatura bem (nota alta, muitas avaliações) mas perde clientes por causa de um site fraco. Não se cria demanda — conserta-se onde o dinheiro está escapando.
+Encontrar o cliente ouro: negócio que JÁ fatura bem (nota alta, muitas avaliações) mas perde clientes por causa do site. Não se cria demanda — conserta-se onde o dinheiro escapa. **Dois modos**, escolhidos no `/prospectar`:
+
+- **🔄 Redesign** — o site existe mas é ruim → oferta = refazer.
+- **✨ Criar site** — não há site (só Instagram/WhatsApp) → oferta = criar o primeiro.
 
 ## Fluxo (via Claude in Chrome)
 
 1. Abrir `https://www.google.com/maps` e buscar `[nicho] em [cidade]`.
-2. Percorrer os resultados um a um, em ordem. Para cada estabelecimento:
-   - Abrir o perfil e ler nota, nº de avaliações e link do site.
-   - **Filtro 1 — potencial financeiro**: nota ≥ 4.7 E avaliações ≥ 40. Reprovou → próximo.
-   - **Filtro 2 — TEM site**: o lead PRECISA ter um site ativo e acessível — a oferta é "uma versão muito melhor do SEU site", e o conteúdo/fotos vêm de lá. Sem site, site fora do ar ou "site" que é só diretório de terceiros/linktree → descartar (registrar o motivo) e seguir.
-   - **Filtro 3 — site ruim**: abrir o site em nova aba e avaliar pelos critérios abaixo. Site bom → descartar. Site ativo porém ruim → candidato (falta só o e-mail).
-3. Parar ao atingir a meta de leads qualificados (config, padrão 10) ou após avaliar 25 estabelecimentos.
-4. Pular estabelecimentos que já estão em `leads.md` (avaliados em buscas anteriores).
+2. Percorrer os resultados. Para cada um, ler nota, nº de avaliações e o link de "site".
+3. **Filtro 1 — potencial financeiro (os DOIS modos):** nota ≥ 4.7 E avaliações ≥ 40. Em cidade pequena, aceite ≥ 30 e avise que afrouxou. Reprovou → próximo.
+4. **Filtro 2 — depende do modo** (ver abaixo).
+5. Parar ao bater a meta de leads (config, padrão 10) ou após avaliar 25.
+6. Pular quem já está em `leads.md`.
 
-## Critérios de site ruim (guardar o motivo específico)
+### Dica de leitura do Maps (importante)
+- O painel de detalhe às vezes não abre por clique. Alternativa confiável: navegar para `https://www.google.com/maps/search/[Nome do lugar]+[cidade]` (resultado único abre o perfil) e ler com `get_page_text`.
+- Para achar @Instagram e WhatsApp de quem não tem site, uma busca web `https://www.google.com/search?q=[nome]+[cidade]+instagram+whatsapp` + `get_page_text` costuma trazer o @ e o número direto dos posts/bio.
+- O "Website" no Maps pode ser um `wa.me/`, `linktr.ee` ou `instagram.com` disfarçado — isso NÃO conta como site próprio (é lead do modo Criar site).
 
-Qualifica como lead se o site (ativo) tiver 2 ou mais destes problemas:
+## Modo 🔄 Redesign — Filtro 2 (tem site próprio ativo porém ruim)
 
-- Layout datado (aparência de template de 10+ anos, fontes de sistema, imagens esticadas/pixeladas)
-- Sem CTA claro de agendamento/contato (nenhum botão de WhatsApp ou agenda visível na primeira dobra)
-- Domínio gratuito ou hospedado em plataforma alheia (Google Sites, Wix grátis, subdomínio de terceiros com marca da plataforma)
-- Não responsivo (quebra no mobile)
-- Conteúdo desorganizado: serviços escondidos, sem hierarquia, texto corrido sem seções
-- Sem prova social (nenhuma avaliação/depoimento, apesar da nota alta no Google)
+- Sem site, site fora do ar, ou "site" que é diretório de terceiros (Instagram/Linktree/wa.me) → **descarta** (é lead do modo Criar site).
+- Abrir o site em nova aba (ou `curl` do HTML) e avaliar. **Site bom → descarta.** Site ativo com **2 ou mais** problemas abaixo → candidato.
+- **E-mail público é OBRIGATÓRIO** (a proposta vai por e-mail). Procure no site (rodapé, contato, `mailto:`) e no Google. Sem e-mail → descarta.
 
-O motivo anotado deve ser objetivo e verificável — ele será citado na proposta. Ex.: "domínio redireciona para Google Sites gratuito, template básico, sem CTA de agendamento".
+**Problemas que caracterizam site ruim (guardar o motivo específico e verificável):**
+- Layout datado (template de 10+ anos, fontes de sistema, imagens esticadas/pixeladas)
+- Sem CTA claro de agendamento/contato na primeira dobra (nenhum botão de WhatsApp/agenda)
+- Domínio gratuito ou plataforma alheia (Google Sites, Wix grátis, subdomínio com marca da plataforma)
+- Não responsivo (quebra no mobile — checar meta viewport)
+- Conteúdo desorganizado, serviços escondidos, texto corrido sem seções
+- Sem prova social (nenhum depoimento, apesar da nota alta no Google)
+
+## Modo ✨ Criar site — Filtro 2 (NÃO tem site próprio)
+
+- **Tem site próprio ativo → descarta** (é lead do modo Redesign).
+- **Alvo = quem só tem Instagram, Linktree, wa.me como "site", ou nada.** Quanto mais avaliações no Google e seguidores no Instagram, melhor (sinal de faturamento). Negócios tradicionais (décadas de casa) sem site são ouro.
+- **Contato = WhatsApp ou @Instagram** (é por lá a abordagem e a fonte de fotos/conteúdo do futuro site). E-mail é opcional.
+- Motivo objetivo, ex.: "40 anos, 1.665 avaliações, 7,6k seguidores, sem site — só @sambura.angra".
 
 ## Coleta por lead
 
-Nome, nota, nº de avaliações, telefone, WhatsApp, e-mail, URL do site, motivo.
+Comum: nome, nicho, cidade, nota, nº de avaliações, telefone, **WhatsApp em `55DDDnúmero`**, `modo`.
+- **Redesign**: + **e-mail** (obrigatório) + URL do site + motivo do site ser ruim.
+- **Criar site**: + **@Instagram** (fonte de conteúdo) + motivo (sem site + prova de faturamento).
 
-**WHATSAPP: capture SEMPRE, separado do telefone.** Fontes, na ordem: botão/link de WhatsApp no site do lead (procure `wa.me/`, `api.whatsapp.com` ou ícone de WhatsApp — extraia o número do link); telefone celular do perfil do Maps (números com 9º dígito são celular no Brasil — assuma WhatsApp). Registre no formato internacional `55 + DDD + número` (ex.: `5511999990000`), pronto pra `wa.me`. O WhatsApp alimenta os botões do dashboard e o plano B de abordagem quando o e-mail não responde.
-
-**E-MAIL É OBRIGATÓRIO.** A proposta vai por e-mail — lead sem e-mail público não fecha o ciclo. Procure nesta ordem: site (rodapé e página de contato), links `mailto:`, home do site da clínica onde atende, busca no Google por "[nome] + email/contato". Se NÃO encontrar e-mail: **descarte o lead, registre na lista de descartados (com o contato que existir, ex. WhatsApp/Instagram) e continue buscando o próximo** até bater a meta. Atenção: "site" que aponta para diretório de terceiros (localtreino, acheioprofissional etc.) não conta como site próprio — descarta pelo Filtro 2.
+**WHATSAPP: capture sempre, separado do telefone.** Fontes: botão/link de WhatsApp no site ou bio (`wa.me/`, `api.whatsapp.com` — extraia o número); celular do perfil do Maps (9º dígito = celular = assuma WhatsApp); posts do Instagram. Formato `55 + DDD + número`.
 
 ## Saída — Google Sheets + leads.md local
 
-Destino principal: PLANILHA DO GOOGLE (via conector do Google Drive: `create_file` com CSV em `textContent` e `contentMimeType: text/csv` — converte automaticamente para Sheets). Título `Leads Prospector — [nicho] [cidade]`; incluir qualificados e descartados, ranqueados por potencial (nota alta + site pior). Entregar o link ao usuário.
+Planilha do Google (conector do Drive: `create_file` com CSV em `textContent`, `contentMimeType: text/csv`). Título `Leads Prospector — [modo] — [nicho] [cidade]`; incluir qualificados e descartados, ranqueados por potencial. Entregar o link.
 
-Cópia de trabalho local `leads.md` (mesmas colunas) para controle de status, já que o conector do Drive não edita células:
+Cópia de trabalho `leads.md` (com a coluna `modo` e o contato certo por modo):
 
 ```markdown
-| # | Nome | Nota | Aval. | E-mail | Telefone | Site atual | Motivo | Status | URL nova |
+| # | Nome | Modo | Nota | Aval. | Contato (e-mail ou WhatsApp/@IG) | Site atual | Motivo | Status |
 ```
 
-Status possíveis: `novo`, `redesenhado`, `publicado`, `proposta enviada`. Quando um status mudar (redesenhar/publicar/proposta), regenerar a planilha do Google com os dados acumulados e atualizar o `dashboard.html` (skill `dashboard-leads`). Nunca sobrescrever leads antigos — apenas acrescentar e atualizar.
+Status: `novo`, `redesenhado`, `publicado`, `proposta enviada`. Ao mudar status, regenerar a planilha e o `dashboard.html` (skill `dashboard-leads`). Nunca sobrescrever leads antigos — só acrescentar/atualizar.
 
 ## Boas práticas
 
-- Trabalhar por região dá vantagem: menos concorrência na oferta e conhecimento local.
+- Trabalhar por região dá vantagem: menos concorrência e conhecimento local.
 - Enquanto o navegador trabalha, não interromper o fluxo com perguntas — só reportar a tabela final.
-- Se o Google Maps pedir login/captcha, pausar e avisar o usuário.
+- Se o Google pedir login/captcha, pausar e avisar o usuário.

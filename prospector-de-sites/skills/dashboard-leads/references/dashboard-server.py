@@ -17,7 +17,8 @@ def ler_config():
 PORTA = 8765
 CAMPOS = ['slug','nome','nicho','cidade','nota','avaliacoes','email','telefone','whatsapp',
           'siteAntigo','motivo','status','urlNova','dataProposta','valor','obs',
-          'contratoStatus','contratoEm','manutencao','pago','docCliente','endCliente']
+          'contratoStatus','contratoEm','manutencao','pago','docCliente','endCliente',
+          'modo','instagram']
 
 def conexao():
     c = sqlite3.connect(DB)
@@ -26,8 +27,9 @@ def conexao():
         email TEXT, telefone TEXT, whatsapp TEXT, siteAntigo TEXT, motivo TEXT,
         status TEXT DEFAULT 'novo', urlNova TEXT, dataProposta TEXT, valor REAL, obs TEXT,
         contratoStatus TEXT DEFAULT 'pendente', contratoEm TEXT, manutencao REAL, pago INTEGER DEFAULT 0,
+        modo TEXT DEFAULT 'redesign', instagram TEXT,
         atualizado TEXT DEFAULT (datetime('now','localtime')))''')
-    for col, tipo in [('contratoStatus',"TEXT DEFAULT 'pendente'"),('contratoEm','TEXT'),('manutencao','REAL'),('pago','INTEGER DEFAULT 0'),('docCliente','TEXT'),('endCliente','TEXT')]:
+    for col, tipo in [('contratoStatus',"TEXT DEFAULT 'pendente'"),('contratoEm','TEXT'),('manutencao','REAL'),('pago','INTEGER DEFAULT 0'),('docCliente','TEXT'),('endCliente','TEXT'),('modo',"TEXT DEFAULT 'redesign'"),('instagram','TEXT')]:
         try: c.execute('ALTER TABLE leads ADD COLUMN %s %s' % (col, tipo))
         except sqlite3.OperationalError: pass
     return c
@@ -62,10 +64,8 @@ class App(SimpleHTTPRequestHandler):
     def do_GET(self):
         if self.path.split('?')[0] == '/api/config':
             cfg = ler_config()
-            hg = dict(cfg.get('cloudflare', {}))
-            hg['senhaDefinida'] = bool(hg.get('repoUrl'))
-            hg.pop('senha', None)  # a senha NUNCA sai do arquivo
-            return self._json(200, {'contratante': cfg.get('contratante', {}), 'cloudflare': hg})
+            cf = dict(cfg.get('cloudflare', {}))
+            return self._json(200, {'contratante': cfg.get('contratante', {}), 'cloudflare': cf})
         if self.path.split('?')[0] == '/api/leads':
             c = conexao(); c.row_factory = sqlite3.Row
             rows = [dict(r) for r in c.execute('SELECT * FROM leads').fetchall()]; c.close()
@@ -89,12 +89,9 @@ class App(SimpleHTTPRequestHandler):
                     ct.update({k: v for k, v in corpo['contratante'].items() if isinstance(v, str)})
                     cfg['contratante'] = ct
                 if 'cloudflare' in corpo:
-                    hg = cfg.get('cloudflare', {})
-                    for k, v in corpo['cloudflare'].items():
-                        if not isinstance(v, str): continue
-                        if k == 'senha' and v == '': continue  # em branco = mantém a atual
-                        hg[k] = v
-                    cfg['cloudflare'] = hg
+                    cf = cfg.get('cloudflare', {})
+                    cf.update({k: v for k, v in corpo['cloudflare'].items() if isinstance(v, str)})
+                    cfg['cloudflare'] = cf
             else:  # compatibilidade: corpo plano = contratante
                 ct = cfg.get('contratante', {})
                 ct.update({k: v for k, v in corpo.items() if isinstance(v, str)})

@@ -5,14 +5,14 @@
   },
   "metadata": {
     "description": "Plugins de IA para negócios do Helio Arreche",
-    "version": "2.1.0",
+    "version": "2.3.0",
     "autoUpdate": true
   },
   "plugins": [
     {
       "name": "prospector-de-sites",
       "source": "./prospector-de-sites",
-      "description": "Prospecção semi-automática com CRM local: encontra negócios bem avaliados com sites ruins no Google Maps, redesenha as páginas com estética premium (editor visual + comparador antes/depois), publica no Cloudflare Pages sozinho (git push automático + HTTPS), envia proposta anti-spam com página-capa personalizada via Gmail, faz follow-up, lê as respostas e gera contrato em Word travado — tudo administrado num dashboard local com kanban e financeiro. Comece pelo /setup.",
+      "description": "Prospecção semi-automática com CRM local, em 2 modos: Redesign (negócios com site ruim → refaz + proposta por e-mail) e Criar site (negócios sem site, só Instagram → cria o 1º site + aborda por WhatsApp). Encontra no Google Maps, redesenha com estética premium (editor visual + comparador antes/depois), publica no Cloudflare Pages via GitHub (git push + HTTPS), faz follow-up, lê respostas e gera contrato em Word travado — tudo num dashboard local com kanban e financeiro. Comece pelo /setup.",
       "author": {
         "name": "Helio Arreche"
       },
@@ -20,7 +20,7 @@
         "prospeccao",
         "landing-page",
         "redesign",
-        "cloudflare",
+        "cloudflare-pages",
         "google-maps",
         "gmail",
         "crm",

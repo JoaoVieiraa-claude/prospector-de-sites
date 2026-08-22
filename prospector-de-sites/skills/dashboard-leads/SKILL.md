@@ -27,10 +27,12 @@ CREATE TABLE IF NOT EXISTS leads(
   status TEXT DEFAULT 'novo', urlNova TEXT, dataProposta TEXT, valor REAL, obs TEXT,
   contratoStatus TEXT DEFAULT 'pendente', contratoEm TEXT, manutencao REAL, pago INTEGER DEFAULT 0,
   docCliente TEXT, endCliente TEXT,
+  modo TEXT DEFAULT 'redesign', instagram TEXT,
   atualizado TEXT DEFAULT (datetime('now','localtime')));
 ```
 
 Status: `novo | redesenhado | publicado | proposta | respondeu | fechado | descartado`. `slug` é a chave.
+`modo`: `redesign` (tem site ruim, abordagem por e-mail) ou `criar` (sem site, abordagem por WhatsApp/DM do `instagram`). `instagram` = @ do perfil (fonte de conteúdo no modo criar).
 
 ## Como os comandos atualizam (SEMPRE os 2 passos)
 

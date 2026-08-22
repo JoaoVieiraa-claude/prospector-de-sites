@@ -31,8 +31,8 @@ Revise o e-mail pronto contra CADA item; se falhar em qualquer um, reescreva ant
 
 - [ ] **1 link só** (a página-capa). Dois links no máximo se incluir o site antigo — nunca mais que isso.
 - [ ] **Sem encurtador de URL** (bit.ly e afins = spam na certa). O link é o domínio real, com `https://`.
-- [ ] **Link como âncora HTML com texto visível limpo.** O Gmail embrulha TODO link em um redirect próprio (`google.com/url?q=...`) ao salvar — não dá pra impedir, e em corpo de texto puro o embrulho fica VISÍVEL, o que parece golpe. Por isso o rascunho é criado com corpo HTML e o link como âncora: `<a href="https://<projeto>.pages.dev/[slug]/proposta.html">https://<projeto>.pages.dev/[slug]/proposta.html</a>` — texto visível = a URL limpa montada a partir do config (nunca copiada de outro e-mail). O redirect do Google fica só no href invisível, como em qualquer e-mail do Gmail. Depois de criar, confira o rascunho: o texto visível deve começar em `https://<projeto>.pages.dev`.
-- [ ] **Domínio limpo e humano.** Se o domínio do config for um subdomínio técnico/temporário (cheio de números, tipo `nome1783367206076.plataforma-temporaria.com`), PARE antes de enviar qualquer proposta: link assim parece golpe e mata a confiança que a capa constrói. Oriente o usuário a usar um domínio próprio no Cloudflare Pages (painel → Custom domains) ou registrar um em registro.br, e atualizar o `pagesUrl` nas Configurações do dashboard. Proposta só sai com domínio apresentável.
+- [ ] **Link como âncora HTML com texto visível limpo.** O Gmail embrulha TODO link em um redirect próprio (`google.com/url?q=...`) ao salvar — não dá pra impedir, e em corpo de texto puro o embrulho fica VISÍVEL, o que parece golpe. Por isso o rascunho é criado com corpo HTML e o link como âncora: `<a href="https://[subdominio]/[slug]/proposta.html">https://[subdominio]/[slug]/proposta.html</a>` — texto visível = a URL limpa montada a partir do config (nunca copiada de outro e-mail). O redirect do Google fica só no href invisível, como em qualquer e-mail do Gmail. Depois de criar, confira o rascunho: o texto visível deve começar em `https://[subdominio do config]`.
+- [ ] **Domínio apresentável.** O subdomínio `.pages.dev` do Cloudflare já é limpo e humano (ex.: `prospector-sites.pages.dev`) — pode enviar. Se o usuário quiser um domínio próprio no lugar (opcional), oriente a apontá-lo no Cloudflare Pages (projeto → Custom domains) e atualizar o campo `subdominio` nas Configurações do dashboard.
 - [ ] **Sem palavras-gatilho**: grátis, promoção, imperdível, oferta, desconto, clique aqui, 100%, garantido, urgente.
 - [ ] **Sem CAIXA ALTA no assunto, sem "!!", sem emoji** no assunto.
 - [ ] **Texto simples** — corpo HTML minimalista (só parágrafos e a âncora do link; zero cores, botões, imagens ou anexos) (anexo de desconhecido aumenta score de spam E medo de abrir; a capa no link substitui o preview).
@@ -45,6 +45,17 @@ Revise o e-mail pronto contra CADA item; se falhar em qualquer um, reescreva ant
 - Modo **rascunho** (padrão): criar via conector do Gmail (`create_draft`) com destinatário, assunto e corpo prontos. Avisar o usuário para revisar antes de enviar.
 - Modo **enviar direto**: se o conector não suportar envio, abrir o Gmail web via Claude in Chrome, ou criar o rascunho e avisar.
 - Nunca enviar para lead sem e-mail confirmado; nesses casos, sugerir contato via WhatsApp com a mesma mensagem adaptada.
+
+## Mensagem de WhatsApp/DM (modo ✨ Criar site)
+
+Para leads sem e-mail (só Instagram/WhatsApp), a proposta é uma mensagem curta e humana, 1 a 1 — não vale a checklist anti-spam de e-mail (aqui o canal já é pessoal). Estrutura:
+
+1. **Abertura personalíssima** (1 linha): elogio real citando as avaliações do Google ou algo do Instagram dele. Ex.: "Oi, [Nome]! Acompanho o [negócio] — mais de 1.600 avaliações e nota 4,9, é referência em Angra."
+2. **Gancho + prova** (1-2 linhas): notei que vocês não têm um site — e um negócio desse tamanho merece um. Montei uma prévia pra vocês verem, sem compromisso.
+3. **Um link só**: a página publicada (`https://[subdominio]/[slug]/`).
+4. **Fecho leve**: "Dá uma olhada e me diz o que achou 🙂" — sem preço, sem pressão.
+
+Regras: cabe numa tela de celular; zero juridiquês; usa o primeiro nome; nunca dispara em massa. **Entregue o texto pronto + o link para o usuário colar** (ou, se ele pedir, envie via Claude in Chrome no WhatsApp Web/Instagram, sempre com ele confirmando). Emojis com parcimônia (1-2), no tom de quem fala com um vizinho comerciante.
 
 ## Página-capa (o que o cliente vê ao clicar)
 

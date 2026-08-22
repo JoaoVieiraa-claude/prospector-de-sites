@@ -1,4 +1,4 @@
-# 🎯 Prospector de Sites — v2.1.0
+# 🎯 Prospector de Sites — v2.3.0
 
 **Plugin para Claude (Cowork) que roda o ciclo completo de prospecção e venda de sites — com CRM local incluso:**
 
@@ -14,7 +14,7 @@ De graça, rodando no seu computador, sem mensalidade.
 | `/prospectar` | Varre o Google Maps: negócios nota ≥ 4.7 com site fraco E e-mail público → planilha no Google Sheets + CRM |
 | `/redesenhar` | Recria as páginas com estética premium (fotos/logo/conteúdo REAIS) + editor visual + comparador antes/depois |
 | `/editor` | Edita texto e imagem da página no navegador, sem código |
-| `/publicar` | Publica no Cloudflare Pages via git push (deploy automático) + página-capa da proposta + HTTPS automático |
+| `/publicar` | Publica no Cloudflare Pages SOZINHO (git push, build automático) + página-capa da proposta + HTTPS |
 | `/proposta` | E-mail com rapport real, checklist anti-spam e a capa personalizada como link |
 | `/respostas` | Lê seu Gmail e move o card sozinho quando o cliente responde (agende diário!) |
 | `/followup` | 3+ dias sem resposta? Gera o lembrete gentil — 1 por lead, nunca repete |
@@ -40,11 +40,11 @@ Re-adicionar o link NÃO atualiza (fica em cache). Faça:
 ```
 /plugin marketplace update arrecheneto-plugins
 ```
-e reinicie o app — a versão certa é a **2.1.0** (confira em Gerenciar plugins). Se não subir: desinstale o plugin → remova o marketplace → feche o app → adicione e instale de novo. A partir da 2.1.0 a atualização é automática (autoUpdate ativado).
+e reinicie o app — a versão certa é a **2.3.0** (confira em Gerenciar plugins). Se não subir: desinstale o plugin → remova o marketplace → feche o app → adicione e instale de novo. A partir da 2.3.0 a atualização é automática (autoUpdate ativado).
 
 ## Requisitos
 
-Claude Cowork · extensão Claude in Chrome · conectores Gmail e Google Drive · repositório GitHub + Cloudflare Pages · Python (para o dashboard) · Windows ou Mac.
+Claude Cowork · extensão Claude in Chrome · conectores Gmail e Google Drive · conta GitHub + Cloudflare Pages (ambas grátis) · git instalado · Python (para o dashboard) · Windows ou Mac.
 
 ## Manual
 

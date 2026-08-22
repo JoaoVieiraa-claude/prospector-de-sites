@@ -1,21 +1,33 @@
 ---
-description: Escreve e envia (ou cria rascunho) da proposta por e-mail via Gmail
+description: Escreve a proposta do lead — e-mail (modo Redesign) ou texto de WhatsApp/DM (modo Criar site)
 argument-hint: "[nome do cliente ou todos]"
 ---
 
-Envie propostas para os leads com página publicada, seguindo a skill `proposta-email`.
+Escreva as propostas dos leads com página publicada. O canal depende do `modo` de cada lead (em `leads.md`).
 
-## Passos
+## Passos comuns
 
 1. Leia `prospector-config.json` (assinatura e modo de envio) e `leads.md`.
-2. Determine os destinatários: `$ARGUMENTS`, ou todos os leads com status `publicado` que ainda não receberam proposta. Somente leads com e-mail confirmado — para os demais, informe que a abordagem fica manual via WhatsApp (ofereça o texto adaptado).
-3. Para cada cliente, escreva o e-mail seguindo a skill `proposta-email` na íntegra, usando os dados reais do lead: elogio baseado nas avaliações do Google, o defeito específico apontado na prospecção e — como ÚNICO link — a página-capa publicada (`https://<projeto>.pages.dev/[slug]/proposta.html`). Se a capa não foi publicada, gere e publique-a agora (template na skill `proposta-email`, publicação pela skill `deploy-cloudflare`) antes de criar o rascunho. NUNCA mencione preço.
-4. **Checklist anti-spam (bloqueante)**: valide o e-mail contra a checklist da skill `proposta-email` (1 link, sem palavras-gatilho, sem anexo, assunto-pergunta ≤ 60 caracteres, primeira linha personalizada). Reescreva até passar em todos os itens.
-5. Envio conforme o modo do config:
-   - **rascunho** (padrão): crie o rascunho pelo conector do Gmail e informe que está pronto para revisão na caixa de rascunhos.
-   - **enviar direto**: se o conector do Gmail não oferecer envio direto, use o Claude in Chrome no Gmail web para enviar, ou crie o rascunho e avise o usuário.
-6. Atualize `leads.md` e o banco do dashboard: status `proposta` + data de envio.
+2. Determine os destinatários: `$ARGUMENTS`, ou todos os leads com status `publicado` que ainda não receberam proposta.
+3. Garanta a **página-capa** publicada de cada cliente (`https://[subdominio]/[slug]/proposta.html`). Se não existir, gere e publique agora (template na skill `proposta-email`, deploy pela skill `deploy-cloudflare`). NUNCA mencione preço, em nenhum modo.
 
-## Saída
+## Modo 🔄 Redesign → e-mail (skill `proposta-email`)
 
-Resuma: quantas propostas criadas/enviadas e para quem, com o link da capa de cada uma. Lembre o usuário: `/respostas` verifica quem respondeu (dá pra agendar diário) e `/followup` cuida de quem está 3+ dias sem responder.
+Só para leads com **e-mail confirmado**. Para cada um, escreva o e-mail seguindo a skill `proposta-email` na íntegra: elogio baseado nas avaliações do Google, o defeito específico do site apontado na prospecção, e — como ÚNICO link — a capa publicada.
+
+- **Checklist anti-spam (bloqueante):** 1 link, sem palavras-gatilho, sem anexo, assunto-pergunta ≤ 60 caracteres, primeira linha personalizada. Reescreva até passar.
+- **Envio** conforme o config: `rascunho` (padrão) = criar rascunho no Gmail para revisão; `enviar direto` = enviar pelo Gmail (ou criar rascunho e avisar).
+
+## Modo ✨ Criar site → texto de WhatsApp / DM do Instagram
+
+Aqui não há e-mail nem checklist anti-spam — a abordagem é 1 a 1, humana, pelo WhatsApp ou DM do @Instagram do lead. Para cada cliente, escreva um **texto curto e pessoal** seguindo a skill `proposta-email` (seção "Mensagem de WhatsApp/DM"):
+
+- Primeira linha 100% personalizada (elogio real citando as avaliações do Google ou algo do Instagram dele).
+- O gancho: notou que ele fatura/é referência mas **não tem site** — e que já montou uma prévia.
+- **Um único link**: a capa/página publicada (`https://[subdominio]/[slug]/`).
+- Tom de gente, sem juridiquês, sem preço. Curto (cabe numa tela de celular).
+- **Não envie automaticamente**: entregue o texto pronto + o link, para o usuário colar no WhatsApp/DM (ou, se pedir, use o Claude in Chrome no WhatsApp Web / Instagram — sempre com o usuário confirmando o envio).
+
+## Fechamento (os dois modos)
+
+Atualize `leads.md` e o dashboard: status `proposta` + data. Resuma: quantas propostas e por qual canal, com o link da capa de cada uma. Lembre: `/respostas` verifica quem respondeu e `/followup` cuida de quem está 3+ dias sem responder.

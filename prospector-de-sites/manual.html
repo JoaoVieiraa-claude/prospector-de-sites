@@ -31,17 +31,18 @@
 <body>
 <div class="wrap">
   <h1>📘 Manual — Prospector de Sites</h1>
-  <div class="versao">Versão 2.1.0</div>
-  <p>Este plugin acha clientes com sites ruins no Google Maps, refaz as páginas com padrão profissional, publica na sua hospedagem e envia a proposta — e você administra tudo num painel (CRM) que roda no seu computador, de graça.</p>
+  <div class="versao">Versão 2.3.0</div>
+  <p>Este plugin acha clientes no Google Maps, cria/refaz o site com padrão profissional, publica no Cloudflare e leva a proposta até o cliente — e você administra tudo num painel (CRM) que roda no seu computador, de graça. Funciona em <b>2 modos</b> (você escolhe num popup ao prospectar): <b>Redesign</b> (quem tem site ruim) e <b>Criar site</b> (quem não tem site).</p>
 
   <div class="toc">
     <b>Neste manual:</b><br>
     <a href="#requisitos">1. O que você precisa antes</a> ·
     <a href="#setup">2. Configuração (uma vez só)</a> ·
-    <a href="#ciclo">3. O ciclo completo</a> ·
-    <a href="#publicacao">4. Publicação automática (sem login!)</a> ·
-    <a href="#dashboard">5. O dashboard (CRM)</a> ·
-    <a href="#mac">6. E no Mac?</a> · <a href="#faq">7. Problemas comuns</a>
+    <a href="#modos">3. Os 2 modos</a> ·
+    <a href="#ciclo">4. O ciclo completo</a> ·
+    <a href="#publicacao">5. Publicação automática</a> ·
+    <a href="#dashboard">6. O dashboard (CRM)</a> ·
+    <a href="#mac">7. E no Mac?</a> · <a href="#faq">8. Problemas comuns</a>
   </div>
 
   <h2 id="requisitos">1. O que você precisa antes</h2>
@@ -50,43 +51,54 @@
     <li><b>Extensão Claude in Chrome</b> conectada — é ela que navega no Google Maps.</li>
     <li><b>Conector do Gmail</b> ativo (Configurações → Conectores) — rascunhos de proposta e leitura de respostas.</li>
     <li><b>Conector do Google Drive</b> — planilha de leads no Google Sheets.</li>
-    <li><b>Conta no GitHub</b> e um <b>repositório de clientes</b> conectado ao <b>Cloudflare Pages</b> (o /setup ajuda a montar). É onde as páginas são publicadas.</li>
+    <li><b>Conta no GitHub + Cloudflare Pages</b> (as duas grátis) e o <b>git</b> instalado e autenticado na máquina — é por aqui que os sites são publicados.</li>
     <li><b>Uma pasta conectada no Cowork</b> (ex.: "Clientes") — tudo fica salvo nela.</li>
   </ul>
 
   <h2 id="setup">2. Configuração (uma vez só)</h2>
   <ol>
     <li>Digite <span class="cmd">/setup</span> no Cowork e responda: sua assinatura (nome, apresentação, WhatsApp), nichos preferidos, cidade e quantos leads por busca.</li>
-    <li><b>Conexão do Cloudflare: tudo no dashboard.</b> Abra o dashboard (<code>iniciar-dashboard.bat</code>) → aba <b>Configurações</b> → seção <b>Conexão Cloudflare</b> → preencha a pasta local do repositório, a URL do repositório no GitHub e a URL pública (pages.dev) → <b>Salvar conexão</b>. Sem senhas — vai direto pro arquivo no seu computador.</li>
+    <li><b>Conexão Cloudflare: no dashboard, nada de senha no chat.</b> Crie um repositório vazio no GitHub só pros clientes (ex.: <code>prospector-sites</code>) e conecte-o a um projeto do Cloudflare Pages (Workers &amp; Pages → Create → Pages → Connect to Git, sem build command). Depois, no dashboard (<code>iniciar-dashboard.bat</code>) → aba <b>Configurações</b> → seção <b>Conexão Cloudflare</b> → preencha o repo, o projeto e o subdomínio <code>.pages.dev</code> → <b>Salvar conexão</b>. Não há senha: o git usa as credenciais já salvas na sua máquina.</li>
     <li>O Claude faz um teste de publicação e te entrega este manual + o dashboard prontos na pasta.</li>
   </ol>
   <div class="box dica">💡 Preencha também seus dados de contratante na aba <b>Configurações</b> do dashboard — todo contrato já sai com eles.</div>
 
-  <h2 id="ciclo">3. O ciclo completo (6 passos + 3 automáticos)</h2>
+  <h2 id="modos">3. Os 2 modos (você escolhe num popup)</h2>
+  <p>Ao rodar <span class="cmd">/prospectar</span>, o Claude abre um popup pra você escolher o modo da rodada. Cada lead fica marcado com o modo (aparece no card do dashboard) e os comandos seguintes se adaptam sozinhos.</p>
+  <table>
+    <tr><th></th><th>🔄 Redesign</th><th>✨ Criar site</th></tr>
+    <tr><td><b>Alvo</b></td><td>Fatura bem + <b>site próprio ruim</b></td><td>Fatura bem + <b>sem site</b> (só Instagram/WhatsApp)</td></tr>
+    <tr><td><b>De onde vem o conteúdo</b></td><td>Do site atual do cliente</td><td>Do <b>Instagram</b> do cliente</td></tr>
+    <tr><td><b>Como aborda</b></td><td>E-mail (com a capa antes/depois)</td><td>Texto de <b>WhatsApp / DM</b>, 1 a 1</td></tr>
+    <tr><td><b>Precisa</b></td><td>E-mail público do lead</td><td>WhatsApp ou @Instagram do lead</td></tr>
+  </table>
+  <div class="box dica">💡 Regra prática: cidade grande e mercado consolidado costumam ter mais <b>Redesign</b>. Cidade pequena/turística (muito negócio forte só no Instagram) rende mais no <b>Criar site</b>.</div>
+
+  <h2 id="ciclo">4. O ciclo completo (6 passos + 3 automáticos)</h2>
   <table>
     <tr><th>Comando</th><th>O que faz</th></tr>
-    <tr><td><span class="cmd">/prospectar</span></td><td>Varre o Google Maps: negócios nota ≥ 4.7 com site fraco E e-mail público. Gera planilha no Google Sheets + alimenta o dashboard.</td></tr>
-    <tr><td><span class="cmd">/redesenhar</span></td><td>Recria as páginas dos melhores leads (5+ por lote) mantendo conteúdo, fotos e logo REAIS. Entrega: página + editor visual + comparador antes/depois.</td></tr>
+    <tr><td><span class="cmd">/prospectar</span></td><td><b>Abre o popup de modo</b> e varre o Google Maps por negócios nota ≥ 4.7 com muitas avaliações. Redesign: com site ruim + e-mail. Criar site: sem site + Instagram/WhatsApp. Gera planilha + alimenta o dashboard.</td></tr>
+    <tr><td><span class="cmd">/redesenhar</span></td><td>Cria as páginas dos melhores leads (5+ por lote) com fotos e logo REAIS — do site (Redesign) ou do Instagram (Criar site). Entrega: página + editor visual + comparador.</td></tr>
     <tr><td><span class="cmd">/editor</span></td><td>Quer mexer em texto ou foto? Abre a versão editável no navegador — clica, edita, exporta.</td></tr>
-    <tr><td><span class="cmd">/publicar</span></td><td>Sobe página + capa de apresentação no Cloudflare Pages (git push) e confirma o HTTPS.</td></tr>
-    <tr><td><span class="cmd">/proposta</span></td><td>Escreve o e-mail (elogio real + defeito objetivo + link da capa), passa na checklist anti-spam e deixa o rascunho no Gmail.</td></tr>
+    <tr><td><span class="cmd">/publicar</span></td><td>Sobe página + capa de apresentação no Cloudflare Pages (git push) e valida o HTTPS (cadeado).</td></tr>
+    <tr><td><span class="cmd">/proposta</span></td><td>Redesign: escreve o e-mail (elogio + defeito + link da capa), checklist anti-spam, rascunho no Gmail. Criar site: monta o <b>texto de WhatsApp/DM</b> pronto pra você colar.</td></tr>
     <tr><td><span class="cmd">/respostas</span></td><td>Lê o Gmail e move sozinho no painel quem respondeu. Dica: peça pro Claude agendar todo dia às 9h.</td></tr>
     <tr><td><span class="cmd">/followup</span></td><td>3+ dias sem resposta? Gera o lembrete gentil (1 por cliente, nunca repete).</td></tr>
     <tr><td><span class="cmd">/contrato</span></td><td>Fechou? Gera o contrato em folha imprimível + Word travado (cliente só preenche onde você deixou) e o rascunho no Gmail.</td></tr>
   </table>
-  <div class="box aviso">⚠️ A regra de ouro do redesign: <b>nada é inventado</b>. Serviços, credenciais e fotos vêm do site real do cliente. O texto é reescrito com técnica — dizendo a mesma verdade.</div>
+  <div class="box aviso">⚠️ A regra de ouro (nos 2 modos): <b>nada é inventado</b>. Serviços, credenciais e fotos vêm do cliente real — do site (Redesign) ou do Instagram (Criar site). O texto é reescrito com técnica, dizendo a mesma verdade.</div>
 
-  <h2 id="publicacao">4. Publicação automática — configure UMA vez e nunca mais faça login</h2>
-  <p>O segredo é a senha no arquivo (passo 2 acima). Com ela preenchida:</p>
+  <h2 id="publicacao">5. Publicação automática — git push, build sozinho</h2>
+  <p>Depois da conexão Cloudflare configurada (passo 2 acima), publicar é um comando só:</p>
   <ol>
-    <li>Preencha a conexão Cloudflare no dashboard (aba Configurações): pasta do repositório, URL do repo e URL pages.dev.</li>
-    <li><b>Uma única vez</b>: conecte o repositório de clientes no Cloudflare Pages (painel → Workers & Pages → Pages → Connect to Git). A partir daí, todo push publica sozinho.</li>
-    <li>Pronto: de agora em diante o <span class="cmd">/publicar</span> faz <code>git push</code> e em até 1 minuto os sites sobem SOZINHOS pelo Cloudflare. O Claude confere as URLs e o cadeado HTTPS na sequência.</li>
+    <li>Rode <span class="cmd">/publicar</span>. O Claude copia a página e a capa de cada cliente pro clone local do repo (<code>sites-publicados/[slug]/</code>) e faz <code>git push</code>.</li>
+    <li>O <b>Cloudflare Pages</b> detecta o push e faz o build automático em segundos — sem FTP, sem senha, sem script na sua máquina.</li>
+    <li>O Claude confere as URLs <code>https://[subdomínio].pages.dev/[slug]/</code> e o cadeado HTTPS na sequência.</li>
   </ol>
-  <p style="font-size:13px;color:var(--muted)">A publicação é o próprio <code>git push</code> feito pelo /publicar — o histórico fica no GitHub (commits) e no painel do Cloudflare Pages (deployments).</p>
-  <div class="box dica">💡 O Cloudflare Pages já serve tudo em HTTPS automaticamente — não há passo de SSL. Se a URL der 404 logo após publicar, espere ~1 minuto (o deploy pode não ter terminado).</div>
+  <p style="font-size:13px;color:var(--muted)">O deploy roda direto do agente por HTTPS — nada pra clicar. Só precisa do git autenticado uma vez na máquina.</p>
+  <div class="box dica">💡 Deu 404 logo após publicar? É o build ainda rodando. Espere ~30s e recarregue — o Cloudflare já serve HTTPS válido por padrão.</div>
 
-  <h2 id="dashboard">5. O dashboard (seu CRM local)</h2>
+  <h2 id="dashboard">6. O dashboard (seu CRM local)</h2>
   <p>Dê <b>dois cliques em <code>iniciar-dashboard.bat</code></b> na sua pasta (precisa de Python instalado) — abre em <code>http://localhost:8765</code> com tudo salvo no banco <code>prospector.db</code>. Sem Python, abra <code>dashboard.html</code> direto (modo leitura com edições locais).</p>
   <ul>
     <li><b>Visão geral</b> — números do funil e receita.</li>
@@ -97,19 +109,19 @@
     <li><b>Follow-ups</b> — quem está parado há dias, com alerta laranja.</li>
     <li><b>Contratos</b> — ver a folha, imprimir, baixar o Word travado, marcar assinado.</li>
     <li><b>Financeiro</b> — recebido, a receber, MRR das manutenções e projeção 12 meses.</li>
-    <li><b>Configurações</b> — seus dados de contratante + conexão Cloudflare (repositório e URL pages.dev; sem senhas).</li>
+    <li><b>Configurações</b> — seus dados de contratante + conexão Cloudflare (repo, projeto Pages e subdomínio; preencha uma vez, sem senha).</li>
   </ul>
 
-  <h2 id="mac">6. E no Mac?</h2>
-  <p>Tudo funciona igual — só muda o arquivo de clique duplo do painel: <code>iniciar-dashboard.command</code>. A publicação é por <code>git push</code>, sem scripts locais. O /setup entrega os arquivos certos pro seu sistema.</p>
+  <h2 id="mac">7. E no Mac?</h2>
+  <p>Tudo funciona igual — só muda o arquivo de clique duplo do painel: <code>iniciar-dashboard.command</code>. A publicação não depende de sistema: é git push direto do agente. O /setup entrega o arquivo certo pro seu sistema.</p>
   <div class="box dica">💡 Na primeira abertura o macOS pode bloquear por segurança: clique com o botão direito no arquivo → <b>Abrir</b> → Abrir. Só na primeira vez. Python 3: se não tiver, <code>brew install python3</code> ou python.org.</div>
-  <h2 id="faq">7. Problemas comuns</h2>
+  <h2 id="faq">8. Problemas comuns</h2>
   <h3>O comparador não apareceu depois do /redesenhar</h3>
   <p>Peça: "gere o comparar.html e atualize o dashboard". A partir da v0.11.1 a entrega é travada e ele sempre vem — e também fica na aba <b>Comparador</b> do dashboard.</p>
-  <h3>O push falha por autenticação</h3>
-  <p>O git precisa estar autenticado no GitHub. Rode <code>gh auth login</code> uma vez no terminal — depois o <code>git push</code> do /publicar funciona sozinho.</p>
-  <h3>Meu link parece estranho / domínio cheio de números</h3>
-  <p>A URL padrão é <code>projeto.pages.dev/[cliente]</code>, que já é apresentável. Se quiser um link ainda melhor, adicione um domínio próprio no projeto do Cloudflare Pages (painel → Custom domains) e atualize a URL nas Configurações do dashboard.</p>
+  <h3>O /publicar falha no git push (pede login ou dá erro de autenticação)</h3>
+  <p>O git não está autenticado na máquina. Faça um <code>git push</code> qualquer no repo de sites uma vez (ou logue pelo credential manager / GitHub CLI) pra salvar as credenciais — depois o /publicar sobe sozinho. Confira também se o repo e o subdomínio estão certos em Configurações → Conexão Cloudflare.</p>
+  <h3>Quero um domínio próprio no lugar do .pages.dev</h3>
+  <p>O subdomínio <code>.pages.dev</code> já é limpo e apresentável, pode enviar pros clientes. Se quiser um domínio próprio, aponte-o no Cloudflare Pages (projeto → Custom domains) e atualize o campo subdomínio nas Configurações do dashboard.</p>
   <h3>Meu e-mail pode cair no spam?</h3>
   <p>A checklist anti-spam do /proposta existe pra isso: 1 link só, sem palavras de vendedor, sem anexo, assunto-pergunta personalizado, envio 1 a 1 da sua conta. Mantenha poucos envios por dia — padrão humano.</p>
   <h3>O lado "Antes" do comparador fica em branco</h3>
